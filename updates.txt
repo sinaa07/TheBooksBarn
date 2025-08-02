@@ -1,0 +1,3 @@
+add shipping address id in order details.
+add shipping address to addresses table if not present already.
+add card details and all to 
