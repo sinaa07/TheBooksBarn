@@ -8,20 +8,18 @@ use Illuminate\Database\Seeder;
 
 class AddressSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    
     public function run(): void
     {
-        $users =User::all();
-        if($users->isempty()){
-            $users = User::factory()->count(10)->create();
+        // Ensure we have users
+        if (User::count() === 0) {
+            $this->call(UserSeeder::class);
         }
-        foreach($users as $user){
+
+        // Create 2 addresses for each user
+        User::all()->each(function ($user) {
             Address::factory()->count(2)->create([
-                'user_id'=> $user->user_id,
+                'user_id' => $user->id, // FIXED: correct foreign key
             ]);
-        }
+        });
     }
 }

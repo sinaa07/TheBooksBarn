@@ -6,19 +6,22 @@ use App\Models\Payment;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+
 class PaymentSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $orders = Order::all();
-        foreach($orders as $order){
-            Payment::factory()->count(1)->create([
-                'order_id' => $order->order_id,
-                'transaction_amt' => $order->total_amt,
-            ]);
+        // Ensure we have orders to work with
+        if (Order::count() === 0) {
+            $this->call(OrderSeeder::class);
         }
+
+        // Create one payment per order
+        Order::all()->each(function ($order) {
+            Payment::factory()->count(1)->create([
+                'order_id' => $order->id,          // FIXED
+                'amount'   => $order->total_amount // FIXED
+            ]);
+        });
     }
 }

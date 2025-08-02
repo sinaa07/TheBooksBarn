@@ -1,8 +1,9 @@
 <?php
 
 namespace Database\Factories;
+
 use App\Models\Admin;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,20 +11,17 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class AdminFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     protected $model = Admin::class;
+
     public function definition(): array
     {
+        // Pick a user who is not already an admin
+        $user = User::whereDoesntHave('admin')->inRandomOrder()->first()
+            ?? User::factory()->create();
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'password' => Hash::make('admin123'),
-            'role' => fake()->randomElement(['manager', 'finance']),
-            'last_login' => fake()->optional()->dateTimeThisYear(),
+            'user_id' => $user->id,
+            'role' => $this->faker->randomElement(['admin', 'manager']),
         ];
     }
 }

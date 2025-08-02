@@ -6,21 +6,21 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+
 class OrderSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $users = User::all();
-        if($users->isempty()){
-            $users = User::factory()->count(10)->create();
+        // Ensure we have users
+        if (User::count() === 0) {
+            $this->call(UserSeeder::class);
         }
-        foreach($users as $user){
+
+        // Create 1 order for each user
+        User::all()->each(function ($user) {
             Order::factory()->count(1)->create([
-                'user_id' => $user->user_id,
+                'user_id' => $user->id, // FIXED
             ]);
-        }
+        });
     }
 }

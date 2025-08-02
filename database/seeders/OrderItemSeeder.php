@@ -9,19 +9,32 @@ use Illuminate\Database\Seeder;
 
 class OrderItemSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $books = Book::all();
-        $orders = Order::all();
-        foreach($orders as $order){
-            OrderItem::factory()->count(1)->create([
-                'user_id' => $order->user_id,
-                'order_id' => $order->order_id,
-                'book_id' => $books->random()->book_id,
-            ]);
+        // Ensure we have books
+        if (Book::count() === 0) {
+            $this->call(BookSeeder::class);
         }
+
+        // Ensure we have orders
+        if (Order::count() === 0) {
+            $this->call(OrderSeeder::class);
+        }
+
+        $books = Book::all();
+
+        // Create 1 item per order
+        Order::all()->each(function ($order) use ($books) {
+            $book = $books->random();
+
+            OrderItem::factory()->count(1)->create([
+                'order_id'    => $order->id,  // FIXED
+                'book_id'     => $book->id,   // FIXED
+                'book_title'  => $book->title, // Fill required field
+                'quantity'    => 1,
+                'unit_price'  => $book->price,
+                'total_price' => $book->price, // qty * unit_price
+            ]);
+        });
     }
 }

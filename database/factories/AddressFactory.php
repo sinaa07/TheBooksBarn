@@ -19,12 +19,13 @@ class AddressFactory extends Factory
             'user_id' => User::factory(), // creates and assigns a new user
             'name' => $this->faker->name(),
             'phone' => $this->faker->numerify('9#########'), // 10-digit Indian-style number
-            'address_line1' => $this->faker->streetAddress(),
-            'address_line2' => $this->faker->optional()->secondaryAddress(),
+            'address_line_1' => $this->faker->streetAddress(),
+            'address_line_2' => $this->faker->optional()->secondaryAddress(),
             'city' => $this->faker->city(),
             'state' => $this->faker->state(),
             'postal_code' => $this->faker->postcode(),
             'country' => 'India',
+            'address_type' => $this->faker->randomElement(['billing', 'shipping', 'both']),
             'is_default' => $this->faker->boolean(20), // 20% chance to be default
         ];
     }

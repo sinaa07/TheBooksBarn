@@ -3,6 +3,7 @@
 namespace Database\Factories;
 use App\Models\Payment;
 use App\Models\Order;
+use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,13 +18,17 @@ class PaymentFactory extends Factory
         $order = Order::inRandomOrder()->first() ?? Order::factory()->create();
 
         return [
-            'order_id' => $order->id,
-            'mode' => $this->faker->randomElement(['credit_card', 'debit_card', 'net_banking', 'UPI']),
-            'status' => $this->faker->randomElement(['success', 'failed', 'pending']),
-            'transaction_id' => $this->faker->unique()->uuid,
-            'transaction_amt' => $order->total_amt,
-            'gateway' => $this->faker->randomElement(['Razorpay', 'Stripe', 'PayPal']),
-            'paid_at' => now(),
+            'order_id' => $order->id, // matches migration FK
+            'payment_method' => $this->faker->randomElement([
+                'credit_card', 'debit_card', 'paypal', 'cash_on_delivery'
+            ]),
+            'payment_status' => $this->faker->randomElement([
+                'pending', 'completed', 'failed', 'refunded'
+            ]),
+            'amount' => $order->total_amount ?? $this->faker->randomFloat(2, 100, 1000),
+            'transaction_id' => $this->faker->unique()->uuid(),
+            'notes' => $this->faker->optional()->sentence(),
+            'completed_at' => $this->faker->optional()->dateTimeBetween('-1 month', 'now'),
         ];
     }
 }

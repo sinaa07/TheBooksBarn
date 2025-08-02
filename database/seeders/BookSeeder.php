@@ -8,20 +8,18 @@ use Illuminate\Database\Seeder;
 
 class BookSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $categories = Category::all();
-        if($categories->isempty()){
-            $catgeory = Category::factory()->count(5)->create();
-        }
-        foreach($categories as $category){
-            Book::factory()->count(9)->create([
-                'cat_id' => $category->cat_id,
-            ]);
+        // Ensure categories exist first
+        if (Category::count() === 0) {
+            $this->call(CategorySeeder::class);
         }
 
+        // Create 9 books for each category
+        Category::all()->each(function ($category) {
+            Book::factory()->count(10)->create([
+                'category_id' => $category->id, // FIXED: correct foreign key name
+            ]);
+        });
     }
 }

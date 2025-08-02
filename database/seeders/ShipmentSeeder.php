@@ -8,17 +8,16 @@ use Illuminate\Database\Seeder;
 
 class ShipmentSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $processingOrders = Order::where('status','processing')->get();
-        
-        foreach($processingOrders as $order){
+        // Get all orders that are processing
+        $processingOrders = Order::where('order_status', 'processing')->get(); // FIXED
+
+        // Create 1 shipment for each processing order
+        $processingOrders->each(function ($order) {
             Shipment::factory()->count(1)->create([
-                'order_id' => $order->order_id,
+                'order_id' => $order->id, // FIXED
             ]);
-        }
+        });
     }
 }

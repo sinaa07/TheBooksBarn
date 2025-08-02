@@ -1,17 +1,26 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\Admin;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class AdminSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        Admin::factory()->count(10)->create();
+        // Get users who don't already have an admin record
+        $eligibleUsers = User::whereDoesntHave('admin')->get();
+
+        // Limit to avoid exceeding available unique users
+        $count = min(10, $eligibleUsers->count());
+
+        // Assign admin role only to eligible users
+        foreach ($eligibleUsers->take($count) as $user) {
+            Admin::factory()->create([
+                'user_id' => $user->id,
+            ]);
+        }
     }
 }

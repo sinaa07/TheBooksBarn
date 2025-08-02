@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Category;
+use App\Models\Book;
+use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -15,12 +17,13 @@ class CategoryFactory extends Factory
 
     public function definition(): array
     {
-        $name = $this->faker->unique()->words(2, true); // generates a name like "Science Fiction"
+        $name = $this->faker->unique()->words(2, true); // e.g., "Science Fiction"
 
         return [
-            'cat_name' => ucfirst($name),
+            'category_name' => ucfirst($name),
+            'description' => $this->faker->optional()->sentence(),
             'slug' => Str::slug($name),
-            'image' => $this->faker->optional()->imageUrl(640, 480, 'books', true, 'category'),
+            'is_active' => true,
         ];
     }
 }

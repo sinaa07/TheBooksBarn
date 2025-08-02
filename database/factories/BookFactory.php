@@ -16,21 +16,20 @@ class BookFactory extends Factory
 
     public function definition(): array
     {
-        $name = $this->faker->unique()->words(3, true);
+        $title = $this->faker->unique()->sentence(3);
 
         return [
-            'name' => $name,
+            'isbn' => $this->faker->unique()->isbn13(),
+            'title' => $title,
             'author' => $this->faker->name(),
-            'cat_id' => Category::factory(), // references categories table
+            'category_id' => Category::factory(), // Correct foreign key
+            'description' => $this->faker->optional()->paragraph(),
             'price' => $this->faker->randomFloat(2, 100, 1000),
-            'stock' => $this->faker->numberBetween(0, 100),
-            'image' => $this->faker->optional()->imageUrl(300, 400, 'books', true),
-            'desc' => $this->faker->optional()->paragraph(),
-            'publisher' => $this->faker->optional()->company(),
-            'published_in' => $this->faker->year(),
-            'language' => $this->faker->optional()->randomElement(['English', 'Hindi', 'French', 'German']),
-            'slug' => Str::slug($name . '-' . Str::random(5)),
-            'ISBN' => $this->faker->unique()->isbn13(),
+            'stock_quantity' => $this->faker->numberBetween(0, 100),
+            'format' => $this->faker->randomElement(['hardcover', 'paperback', 'ebook']),
+            'cover_image_url' => $this->faker->optional()->imageUrl(300, 400, 'books', true),
+            'is_active' => true,
+            'featured' => $this->faker->boolean(20), // 20% chance of being featured
         ];
     }
 }
