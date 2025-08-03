@@ -63,47 +63,51 @@ class BookController extends Controller
     }
 
     public function show(Request $request, int $id): Response
-    {
-        $book = Book::with('category')
-            ->where('id', $id)
-            ->where('is_active', true)
-            ->firstOrFail();
+{
+    $book = Book::with('category')
+        ->where('id', $id)
+        ->where('is_active', true)
+        ->firstOrFail();
 
-        $relatedBooks = Book::with('category')
-            ->where('category_id', $book->category_id)
-            ->where('id', '!=', $book->id)
-            ->where('is_active', true)
-            ->where('stock_quantity', '>', 0)
-            ->limit(6)
-            ->get()
-            ->map(function ($book) {
-                return [
-                    'id' => $book->id,
-                    'title' => $book->title,
-                    'author' => $book->author,
-                    'price' => $book->price,
-                    'cover_image_url' => $book->cover_image_url,
-                    'format' => $book->format,
-                ];
-            });
-
-        return Inertia::render('Books/Show', [
-            'book' => [
+    $relatedBooks = Book::with('category')
+        ->where('category_id', $book->category_id)
+        ->where('id', '!=', $book->id)
+        ->where('is_active', true)
+        ->where('stock_quantity', '>', 0)
+        ->limit(6)
+        ->get()
+        ->map(function ($book) {
+            return [
                 'id' => $book->id,
-                'isbn' => $book->isbn,
                 'title' => $book->title,
                 'author' => $book->author,
-                'description' => $book->description,
                 'price' => $book->price,
-                'stock_quantity' => $book->stock_quantity,
-                'format' => $book->format,
                 'cover_image_url' => $book->cover_image_url,
-                'category' => $book->category?->category_name,
-                'category_id' => $book->category_id,
-            ],
-            'relatedBooks' => $relatedBooks,
-        ]);
-    }
+                'format' => $book->format,
+            ];
+        });
+
+    return Inertia::render('Books/Show', [
+        'book' => [
+            'id' => $book->id,
+            'isbn' => $book->isbn,
+            'title' => $book->title,
+            'author' => $book->author,
+            'description' => $book->description,
+            'price' => $book->price,
+            'stock_quantity' => $book->stock_quantity,
+            'format' => $book->format,
+            'cover_image_url' => $book->cover_image_url,
+            'category' => $book->category ? [
+                'id' => $book->category->id,
+                'category_name' => $book->category->category_name,
+                'slug' => $book->category->slug,
+            ] : null,
+            'category_id' => $book->category_id,
+        ],
+        'relatedBooks' => $relatedBooks,
+    ]);
+}
 
     public function search(Request $request): Response
     {
