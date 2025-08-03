@@ -6,7 +6,7 @@ const SearchBar: React.FC = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && q.trim() !== '') {
-      router.visit(`/search?q=${encodeURIComponent(q.trim())}`);
+      router.visit(route('books.search', { q: q.trim() }));
     }
   };
 

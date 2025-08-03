@@ -1,10 +1,9 @@
 import { LogIn, LogOut, Heart, ShoppingCart } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
 import { usePage, Link } from '@inertiajs/react';
-import SearchBar from './search-bar';
+import SearchBar from './search/search-bar';
 
-export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
+export function AppSidebarHeader() {
     const { auth } = usePage<{ auth?: { user?: any } }>().props;
 
     return (

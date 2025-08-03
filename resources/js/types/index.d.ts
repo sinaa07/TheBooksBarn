@@ -111,6 +111,19 @@ export interface SearchFilters extends Record<string, FormDataConvertible | unde
     sort?: 'newest' | 'title' | 'author' | 'price_low' | 'price_high';
 }
 
+interface PriceRange {
+    min_price: number;
+    max_price: number;
+  }
+  
+  interface Filters {
+    q?: string;
+    category_id?: string | number;
+    format: string;
+    min_price: number;
+    max_price: number;
+    sort_by?: string;
+  }
 export interface SearchStats {
     total: number;
     showing: number;

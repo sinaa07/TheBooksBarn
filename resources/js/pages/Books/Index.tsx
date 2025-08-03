@@ -3,21 +3,18 @@ import { Head } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import BookGrid from '@/components/book-grid';
 import Pagination from '@/components/pagination';
-import { Book, PaginatedBooks, Category } from '@/types';
+import { Book, PaginatedBooks, Category, PriceRange, Filters } from '@/types';
+import FiltersSidebar from '@/components/search/filters-sidebar';
 
 interface BooksIndexProps {
   books: PaginatedBooks;
-  categories?: Category[]; // optional for now
-  filters: {
-    q?: string; // search term from backend
-    category_id?: string;
-    sort_by?: string;
-    min_price?: string;
-    max_price?: string;
-  };
+  categories: Category[]; // optional for now
+  filters: Filters;
+  formats: Book['format'][];
+  priceRange: PriceRange;
 }
 
-export default function BooksIndex({ books, categories, filters }: BooksIndexProps) {
+export default function BooksIndex({ books, categories, filters, formats, priceRange }: BooksIndexProps) {
   // Basic search stats from backend data
   const hasSearch =
     !!filters.q || !!filters.category_id || !!filters.sort_by || !!filters.min_price || !!filters.max_price;
@@ -46,7 +43,7 @@ export default function BooksIndex({ books, categories, filters }: BooksIndexPro
             )}
           </div>
         </div>
-
+        
         {/* Book Grid */}
         <BookGrid books={books.data} />
 
