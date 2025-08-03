@@ -9,7 +9,7 @@ interface BookGridProps {
 
 const BookGrid: React.FC<BookGridProps> = ({ books }) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7 ">
       {books.map(book => (
         <Link
           key={book.id}

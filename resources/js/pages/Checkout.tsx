@@ -19,7 +19,7 @@ export default function Checkout({ cartItems, total, user }: CheckoutProps) {
     name: user.name || '',
     mobile: user.mobile || '',
     address: user.address
-    ? `${user.address.address_line1}, ${user.address.city}, ${user.address.state}, ${user.address.country} - ${user.address.postal_code}`
+    ? `${user.address.address_line_1}, ${user.address.city}, ${user.address.state}, ${user.address.country} - ${user.address.postal_code}`
     : '',
   });
 
@@ -46,7 +46,7 @@ export default function Checkout({ cartItems, total, user }: CheckoutProps) {
             {cartItems.map((item, index) => (
               <li key={index} className="flex justify-between items-center bg-[#FDF9F4] px-4 py-3 rounded-lg">
                 <div>
-                  <p className="font-medium text-[#4B2E2B]">{item.book.name}</p>
+                  <p className="font-medium text-[#4B2E2B]">{item.book.title}</p>
                   <p className="text-sm text-[#7A5E52]">{item.quantity} × ₹{item.unit_price}</p>
                 </div>
                 <p className="text-[#4B2E2B] font-semibold">

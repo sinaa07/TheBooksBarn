@@ -29,7 +29,7 @@ export default function BooksIndex({ books, categories, filters, formats, priceR
     <AppSidebarLayout>
       <Head title="Books" />
       
-      <div className="container h-full mx-auto px-4 py-8 bg-[#F5F0EB]">
+      <div className="container h-full mx-auto px-4 py-8 bg-gradient-to-br from-[#f9f5f0] via-[#ede3d9] to-[#d6c2aa]">
         {/* Page Heading */}
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-[#4B3B2A] font-serif mb-3">

@@ -11,10 +11,10 @@ interface Props {
 export default function BooksIndex({ books , category}: Props) {
     return (
         <AppSidebarLayout>
-        <div className="container mx-auto px-4 py-8 bg-[#F5F0EB]">
+        <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-[#f9f5f0] via-[#ede3d9] to-[#d6c2aa]">
 
             <div>
-                <h1 className="text-4xl font-extrabold text-[#4B3B2A] font-serif mb-6">{category.cat_name}</h1>
+                <h1 className="text-4xl font-extrabold text-[#4B3B2A] font-serif mb-6">{category.category_name}</h1>
 
                 {books.data.length === 0 ? (
                     <p className="text-center text-[#5C4033] italic font-sans">No books found.</p>

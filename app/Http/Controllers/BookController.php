@@ -8,55 +8,103 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class BookController extends Controller
+class BookController extends BaseBookController
 {
     public function index(Request $request): Response
     {
+        $sortBy = $request->get('sort_by', 'newest');
+        
         $booksQuery = Book::with('category')
             ->where('is_active', true)
             ->where('stock_quantity', '>', 0);
 
-        $sortBy = $request->get('sort_by', 'newest');
-        
-        switch ($sortBy) {
-            case 'price_asc':
-                $booksQuery->orderBy('price', 'asc');
-                break;
-            case 'price_desc':
-                $booksQuery->orderBy('price', 'desc');
-                break;
-            case 'oldest':
-                $booksQuery->orderBy('created_at', 'asc');
-                break;
-            case 'title':
-                $booksQuery->orderBy('title', 'asc');
-                break;
-            case 'newest':
-            default:
-                $booksQuery->orderBy('created_at', 'desc');
-                break;
-        }
+        // Apply shared filtering and sorting
+        $booksQuery = $this->applyBookFilters($booksQuery, $request);
+        $booksQuery = $this->applyBookSorting($booksQuery, $sortBy);
 
         $books = $booksQuery->paginate(12)->appends($request->query());
+        $this->transformBookCollection($books);
 
-        $books->getCollection()->transform(function ($book) {
-            return [
-                'id' => $book->id,
-                'title' => $book->title,
-                'author' => $book->author,
-                'price' => $book->price,
-                'cover_image_url' => $book->cover_image_url,
-                'category' => $book->category?->category_name,
-                'category_id' => $book->category_id,
-                'format' => $book->format,
-                'stock_quantity' => $book->stock_quantity,
-                'description' => $book->description,
-            ];
-        });
+        // Get filter data
+        $categories = Category::where('is_active', true)->orderBy('category_name')->get(['id', 'category_name']);
+        $formats = $this->getBookFormats();
+        $priceRange = $this->getBookPriceRange();
 
         return Inertia::render('Books/Index', [
             'books' => $books,
+            'categories' => $categories,
+            'formats' => $formats,
+            'priceRange' => $priceRange,
             'filters' => [
+                'sort_by' => $sortBy,
+                'format' => $request->get('format'),
+                'min_price' => $request->get('min_price'),
+                'max_price' => $request->get('max_price'),
+                'category_id' => $request->get('category_id'),
+            ],
+        ]);
+    }
+
+    public function search(Request $request): Response
+    {
+        $query = $request->get('q', '');
+        $categoryId = $request->get('category_id');
+        $sortBy = $request->get('sort_by', 'relevance');
+
+        $booksQuery = Book::with('category')
+            ->where('is_active', true)
+            ->where('stock_quantity', '>', 0);
+
+        // Text search logic
+        if (!empty($query)) {
+            $booksQuery->where(function($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                  ->orWhere('author', 'like', "%{$query}%")
+                  ->orWhereHas('category', function($categoryQuery) use ($query) {
+                      $categoryQuery->where('category_name', 'like', "%{$query}%");
+                  });
+            });
+        }
+
+        if ($categoryId) {
+            $booksQuery->where('category_id', $categoryId);
+        }
+
+        // Apply shared filtering
+        $booksQuery = $this->applyBookFilters($booksQuery, $request);
+
+        // Special relevance sorting for search
+        if ($sortBy === 'relevance' && !empty($query)) {
+            $booksQuery->orderByRaw("
+                CASE
+                    WHEN title LIKE ? THEN 1
+                    WHEN author LIKE ? THEN 2
+                    ELSE 3
+                END ASC
+            ", ["%{$query}%", "%{$query}%"]);
+        } else {
+            $booksQuery = $this->applyBookSorting($booksQuery, $sortBy);
+        }
+
+        $books = $booksQuery->paginate(12)->appends($request->query());
+        $this->transformBookCollection($books);
+
+        // Get filter data
+        $categories = Category::where('is_active', true)->orderBy('category_name')->get(['id', 'category_name']);
+        $formats = $this->getBookFormats();
+        $priceRange = $this->getBookPriceRange();
+
+        return Inertia::render('Books/Search', [
+            'books' => $books,
+            'categories' => $categories,
+            'formats' => $formats,
+            'priceRange' => $priceRange,
+            'filters' => [
+                'q' => $query,
+                'category_id' => $categoryId,
+                'format' => $request->get('format'),
+                'min_price' => $request->get('min_price'),
+                'max_price' => $request->get('max_price'),
                 'sort_by' => $sortBy,
             ],
         ]);
@@ -108,127 +156,6 @@ class BookController extends Controller
         'relatedBooks' => $relatedBooks,
     ]);
 }  
-
-public function search(Request $request): Response
-{
-    $query = $request->get('q', '');
-    $categoryId = $request->get('category_id');
-    $format = $request->get('format');
-    $minPrice = $request->get('min_price');
-    $maxPrice = $request->get('max_price');
-    $sortBy = $request->get('sort_by', 'relevance');
-    
-    $booksQuery = Book::with('category')
-        ->where('is_active', true)
-        ->where('stock_quantity', '>', 0);
-    
-    if (!empty($query)) {
-        $booksQuery->where(function($q) use ($query) {
-            $q->where('title', 'like', "%{$query}%")
-              ->orWhere('author', 'like', "%{$query}%")
-              ->orWhereHas('category', function($categoryQuery) use ($query) {
-                  $categoryQuery->where('category_name', 'like', "%{$query}%");
-              });
-        });
-    }
-    
-    if ($categoryId) {
-        $booksQuery->where('category_id', $categoryId);
-    }
-    
-    if ($format) {
-        $booksQuery->where('format', $format);
-    }
-    
-    if ($minPrice) {
-        $booksQuery->where('price', '>=', $minPrice);
-    }
-    
-    if ($maxPrice) {
-        $booksQuery->where('price', '<=', $maxPrice);
-    }
-    
-    switch ($sortBy) {
-        case 'price_asc':
-            $booksQuery->orderBy('price', 'asc');
-            break;
-        case 'price_desc':
-            $booksQuery->orderBy('price', 'desc');
-            break;
-        case 'newest':
-            $booksQuery->orderBy('created_at', 'desc');
-            break;
-        case 'oldest':
-            $booksQuery->orderBy('created_at', 'asc');
-            break;
-        case 'relevance':
-        default:
-            if (!empty($query)) {
-                // Order by most relevant matches first
-                $booksQuery->orderByRaw("
-                    CASE 
-                        WHEN title LIKE ? THEN 1
-                        WHEN author LIKE ? THEN 2
-                        ELSE 3
-                    END ASC
-                ", ["%{$query}%", "%{$query}%"]);
-            } else {
-                $booksQuery->orderBy('created_at', 'desc');
-            }
-            break;
-    }
-    
-    $books = $booksQuery->paginate(12)->appends($request->query());
-    
-    $books->getCollection()->transform(function ($book) {
-        return [
-            'id' => $book->id,
-            'title' => $book->title,
-            'author' => $book->author,
-            'price' => $book->price,
-            'cover_image_url' => $book->cover_image_url,
-            'category' => $book->category?->category_name,
-            'category_id' => $book->category_id,
-            'format' => $book->format,
-            'stock_quantity' => $book->stock_quantity,
-            'description' => $book->description,
-        ];
-    });
-    
-    $categories = Category::where('is_active', true)
-        ->orderBy('category_name')
-        ->get(['id', 'category_name']);
-    
-    $formats = Book::select('format')
-        ->where('is_active', true)
-        ->distinct()
-        ->orderBy('format')
-        ->pluck('format');
-    
-    $priceRange = Book::where('is_active', true)
-        ->where('stock_quantity', '>', 0)
-        ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
-        ->first();
-        if (!$priceRange) {
-            $priceRange = (object) ['min_price' => 0, 'max_price' => 0];
-        } 
-
-    
-    return Inertia::render('Books/Search', [
-        'books' => $books,
-        'categories' => $categories,
-        'formats' => $formats,
-        'priceRange' => $priceRange,
-        'filters' => [
-            'q' => $query,
-            'category_id' => $categoryId,
-            'format' => $format,
-            'min_price' => $minPrice,
-            'max_price' => $maxPrice,
-            'sort_by' => $sortBy,
-        ],
-    ]);
-}
 
     public function featured(Request $request): Response
     {
