@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\ProfileUpdateRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,73 +13,9 @@ use Inertia\Response;
 class ProfileController extends Controller
 {
     /**
-     * Show the user's profile settings page (Breeze style)
-     */
-    public function edit(Request $request): Response
-    {
-        return Inertia::render('settings/profile', [
-            'user' => $request->user(),
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => $request->session()->get('status'),
-        ]);
-    }
-
-    /**
-     * Show the user's profile edit page (Custom style)
-     */
-    public function editProfile()
-    {
-        return Inertia::render('User/EditProfile', [
-            'user' => Auth::user(),
-        ]);
-    }
-
-    /**
-     * Update the user's profile settings (Breeze style with ProfileUpdateRequest)
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return to_route('profile.edit')->with('status', 'profile-updated');
-    }
-
-    /**
-     * Update the user's profile (Custom style with manual validation)
-     */
-    public function updateProfile(Request $request): RedirectResponse
-    {
-        $user = Auth::user();
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'first_name' => ['nullable', 'string', 'max:255'],
-            'last_name' => ['nullable', 'string', 'max:255'],
-            'username' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'phone' => ['nullable', 'string', 'max:20'],
-        ]);
-
-        // Handle email change
-        if ($user->email !== $validated['email']) {
-            $user->email_verified_at = null;
-        }
-
-        $user->update($validated);
-
-        return redirect()->route('user.dashboard')->with('success', 'Profile updated successfully.');
-    }
-
-    /**
      * Show user profile with stats and addresses
      */
-    public function show()
+    public function show(): Response
     {
         $user = Auth::user();
         
@@ -100,12 +34,51 @@ class ProfileController extends Controller
             'pending_orders' => $user->orders()
                 ->whereIn('order_status', ['pending', 'confirmed', 'processing'])
                 ->count(),
+            'completed_orders' => $user->orders()
+                ->where('order_status', 'delivered')
+                ->count(),
         ];
 
         return Inertia::render('Profile/Show', [
             'user' => $user,
             'stats' => $stats
         ]);
+    }
+
+    /**
+     * Show the user's profile edit page
+     */
+    public function edit(): Response
+    {
+        return Inertia::render('Profile/Edit', [
+            'user' => Auth::user(),
+        ]);
+    }
+
+    /**
+     * Update the user's profile information
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'max:100', Rule::unique('users')->ignore($user->id)],
+            'first_name' => ['required', 'string', 'max:50'],
+            'last_name' => ['required', 'string', 'max:50'],
+            'username' => ['required', 'string', 'max:50', Rule::unique('users')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        // Handle email change - require re-verification
+        if ($user->email !== $validated['email']) {
+            $user->email_verified_at = null;
+        }
+
+        $user->update($validated);
+
+        return redirect()->route('profile.show')
+            ->with('success', 'Profile updated successfully.');
     }
 
     /**
@@ -132,6 +105,6 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Account deleted successfully.');
     }
 }

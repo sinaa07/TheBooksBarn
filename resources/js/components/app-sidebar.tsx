@@ -14,7 +14,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Account',
-        href: '/user/dashboard',
+        href: '/Profile/Show',
         icon: UserRound,
     },
     {
