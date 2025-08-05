@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
-
+import AddressIndex from '@/pages/Addresses/Index';
 import { Address, User } from '@/types';
 
 interface Props {
@@ -56,7 +56,7 @@ export default function Dashboard({ user, addresses }: Props) {
                             </dl>
                         </div>
 
-                        {/*<AddressIndex addresses={addresses} />*/}
+                        <AddressIndex addresses={addresses} />
                     </section>
                 </main>
 

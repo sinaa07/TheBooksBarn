@@ -63,9 +63,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AddressController::class, 'index'])->name('index');
         Route::get('/create', [AddressController::class, 'create'])->name('create');
         Route::post('/', [AddressController::class, 'store'])->name('store');
+        Route::get('/{address}', [AddressController::class, 'show'])->name('show');
         Route::get('/{address}/edit', [AddressController::class, 'edit'])->name('edit');
         Route::patch('/{address}', [AddressController::class, 'update'])->name('update');
         Route::delete('/{address}', [AddressController::class, 'destroy'])->name('destroy');
+        Route::patch('/{address}/set-default', [AddressController::class, 'setDefault'])->name('set-default');
+        Route::get('/by-type', [AddressController::class, 'getByType'])->name('by-type');
+        Route::get('/default', [AddressController::class, 'getDefault'])->name('default');
     });
 
     // User profile
