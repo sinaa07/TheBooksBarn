@@ -4,10 +4,10 @@ import { Address, User } from '@/types';
 import AddressIndex from '../Addresses';
 interface Props {
     user: User;
-    addresses: Address[];
+    addresses?: Address[];
 }
 
-export default function Dashboard({ user, addresses }: Props) {
+export default function Dashboard({ user, addresses=[] }: Props) {
     const { post } = useForm();
 
     const handleLogout = () => {

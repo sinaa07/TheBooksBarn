@@ -26,7 +26,7 @@ class AddressController extends Controller
             ->get();
 
         return Inertia::render('Addresses/Index', [
-            'addresses' => $addresses
+            'addresses' => $addresses ?? []
         ]);
     }
 

@@ -11,7 +11,7 @@ export default function AddressIndex({ addresses }: Props) {
 
     const handleDelete = (id: number) => {
         if (confirm('Are you sure you want to delete this address?')) {
-            destroy(route('user.address.destroy', id));
+            destroy(route('addresses.destroy', id));
         }
     };
 
@@ -23,7 +23,7 @@ export default function AddressIndex({ addresses }: Props) {
                     <div className="flex justify-between items-center">
                         <h2 className="text-3xl font-bold text-[#4B3B2A] font-serif">My Saved Addresses</h2>
                         <Link
-                            href={route('user.address.create')}
+                            href={route('addresses.create')}
                             className="bg-[#704832] text-white px-6 py-2 rounded hover:bg-[#5C4033] transition"
                         >
                             + Add New
@@ -34,7 +34,10 @@ export default function AddressIndex({ addresses }: Props) {
                         <p className="text-[#5C4033] italic">No addresses saved yet.</p>
                     ) : (
                         <ul className="space-y-4">
-                            {addresses.map((addr) => (
+                            {(addresses ?? []).length === 0 ? 
+                            ( <p>No addresses saved yet.</p>) 
+                             :
+                             addresses.map((addr) => (
                                 <li
                                     key={addr.id}
                                     className="border rounded-lg p-4 bg-[#f9f5f0] shadow-sm space-y-2"
@@ -57,7 +60,7 @@ export default function AddressIndex({ addresses }: Props) {
                                     </div>
                                     <div className="flex gap-4 mt-2">
                                         <Link
-                                            href={route('user.address.edit', addr.id)}
+                                            href={route('addresses.edit', addr.id)}
                                             className="text-sm bg-[#4B3B2A] text-white px-4 py-1 rounded hover:bg-[#3B1F1B] transition"
                                         >
                                             Edit
