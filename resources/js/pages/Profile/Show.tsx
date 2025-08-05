@@ -1,8 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
-import AddressIndex from '@/pages/Addresses/Index';
 import { Address, User } from '@/types';
-
+import AddressIndex from '../Addresses';
 interface Props {
     user: User;
     addresses: Address[];
