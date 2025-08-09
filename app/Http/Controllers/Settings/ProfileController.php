@@ -19,12 +19,11 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-        $user->load([
-            'addresses' => function($query) {
-                $query->orderBy('is_default', 'desc')
-                      ->orderBy('created_at', 'desc');
-            }
-        ]);
+        $addresses = $user->addresses()
+        ->orderBy('is_default', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->limit(2)
+        ->get();
 
         $stats = [
             'total_orders' => $user->orders()->count(),
@@ -39,9 +38,13 @@ class ProfileController extends Controller
                 ->count(),
         ];
 
+        $totalAddresses = $user->addresses()->count();
+
         return Inertia::render('Profile/Show', [
             'user' => $user,
-            'stats' => $stats
+            'stats' => $stats,
+            'addresses' => $addresses,
+            'totalAddresses' => $totalAddresses
         ]);
     }
 

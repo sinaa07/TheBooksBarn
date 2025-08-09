@@ -70,7 +70,7 @@ class AddressController extends Controller
 
         $address = $user->addresses()->create($validated);
 
-        return redirect()->route('addresses.index')
+        return redirect()->route('profile.show')
             ->with('success', 'Address created successfully.');
     }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Address } from '@/types';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
 interface Props {
     addresses: Address[];
@@ -17,6 +18,8 @@ export default function AddressIndex({ addresses }: Props) {
 
     return (
         <div>
+            <AppSidebarLayout>
+        <div className='container h-full mx-auto px-4 py-8 bg-gradient-to-br from-[#f9f5f0] via-[#ede3d9] to-[#d6c2aa]'>
             <Head title="My Addresses" />
             <main className="max-w-4xl mx-auto px-6 py-12">
                 <section className="bg-[#fdf9f4] rounded-xl p-8 shadow-sm backdrop-blur-sm space-y-8">
@@ -78,6 +81,8 @@ export default function AddressIndex({ addresses }: Props) {
                     )}
                 </section>
             </main>
+        </div>
+        </AppSidebarLayout>
         </div>
     );
 }

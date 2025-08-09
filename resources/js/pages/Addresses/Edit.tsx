@@ -44,7 +44,7 @@ export default function EditAddress({ address }: Props) {
                                         placeholder="Full Name"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
-                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                     />
                                     {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
                                 </div>
@@ -54,7 +54,7 @@ export default function EditAddress({ address }: Props) {
                                         placeholder="Phone Number"
                                         value={data.phone}
                                         onChange={(e) => setData('phone', e.target.value)}
-                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                     />
                                     {errors.phone && <p className="text-sm text-red-600">{errors.phone}</p>}
                                 </div>
@@ -67,7 +67,7 @@ export default function EditAddress({ address }: Props) {
                                     placeholder="Address Line 1"
                                     value={data.address_line_1}
                                     onChange={(e) => setData('address_line_1', e.target.value)}
-                                    className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                    className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                 />
                                 {errors.address_line_1 && <p className="text-sm text-red-600">{errors.address_line_1}</p>}
 
@@ -76,7 +76,7 @@ export default function EditAddress({ address }: Props) {
                                     placeholder="Address Line 2 (Optional)"
                                     value={data.address_line_2 || ''}
                                     onChange={(e) => setData('address_line_2', e.target.value)}
-                                    className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                    className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                 />
                                 {errors.address_line_2 && <p className="text-sm text-red-600">{errors.address_line_2}</p>}
                             </div>
@@ -89,7 +89,7 @@ export default function EditAddress({ address }: Props) {
                                         placeholder="City"
                                         value={data.city}
                                         onChange={(e) => setData('city', e.target.value)}
-                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                     />
                                     {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
                                 </div>
@@ -99,7 +99,7 @@ export default function EditAddress({ address }: Props) {
                                         placeholder="State"
                                         value={data.state}
                                         onChange={(e) => setData('state', e.target.value)}
-                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                     />
                                     {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
                                 </div>
@@ -113,7 +113,7 @@ export default function EditAddress({ address }: Props) {
                                         placeholder="Postal Code"
                                         value={data.postal_code}
                                         onChange={(e) => setData('postal_code', e.target.value)}
-                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                     />
                                     {errors.postal_code && <p className="text-sm text-red-600">{errors.postal_code}</p>}
                                 </div>
@@ -123,7 +123,7 @@ export default function EditAddress({ address }: Props) {
                                         placeholder="Country"
                                         value={data.country}
                                         onChange={(e) => setData('country', e.target.value)}
-                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                        className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]"
                                     />
                                     {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                                 </div>
@@ -137,7 +137,7 @@ export default function EditAddress({ address }: Props) {
                                     onChange={(e) =>
                                         setData('address_type', e.target.value as 'billing' | 'shipping' | 'both')
                                     }
-                                    className="w-full border border-[#d6c2aa] rounded px-3 py-2"
+                                    className="w-full border border-[#d6c2aa] rounded px-3 py-2 text-[#4B3B2A]" 
                                 >
                                     <option value="billing">Billing</option>
                                     <option value="shipping">Shipping</option>
@@ -162,14 +162,14 @@ export default function EditAddress({ address }: Props) {
                             <div className="flex justify-end gap-4">
                                 <a
                                     href={route('addresses.index')}
-                                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                                    className="bg-gray-200 text-[#4B3B2A] px-4 py-2 rounded hover:bg-gray-300 transition"
                                 >
                                     Cancel
                                 </a>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="bg-[#704832] text-white px-6 py-2 rounded hover:bg-[#5C4033]"
+                                    className="bg-[#704832] text-white px-6 py-2 rounded hover:bg-[#5C4033] transition cursor-pointer"
                                 >
                                     Update Address
                                 </button>
