@@ -10,7 +10,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children, breadcrumbs, ...props }: AppLayoutProps): JSX.Element => (
-    <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+    <AppLayoutTemplate {...props}>
         {children}
     </AppLayoutTemplate>
 );

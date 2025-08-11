@@ -15,9 +15,6 @@ class AddressController extends Controller
 {
     use AuthorizesRequests;
 
-    /**
-     * Display a listing of user's addresses
-     */
     public function index(): Response
     {
         $addresses = auth()->user()->addresses()
@@ -30,17 +27,11 @@ class AddressController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new address
-     */
     public function create(): Response
     {
         return Inertia::render('Addresses/Create');
     }
 
-    /**
-     * Store a newly created address
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -57,13 +48,10 @@ class AddressController extends Controller
         ]);
 
         $user = auth()->user();
-
-        // If this is being set as default, remove default from other addresses
         if ($validated['is_default'] ?? false) {
             $user->addresses()->update(['is_default' => false]);
         }
 
-        // If user has no addresses, make this one default automatically
         if ($user->addresses()->count() === 0) {
             $validated['is_default'] = true;
         }
@@ -74,9 +62,6 @@ class AddressController extends Controller
             ->with('success', 'Address created successfully.');
     }
 
-    /**
-     * Display the specified address
-     */
     public function show(Address $address): Response
     {
         $this->authorize('view', $address);
@@ -86,9 +71,6 @@ class AddressController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified address
-     */
     public function edit(Address $address): Response
     {
         $this->authorize('update', $address);
@@ -98,9 +80,6 @@ class AddressController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified address
-     */
     public function update(Request $request, Address $address): RedirectResponse
     {
         $this->authorize('update', $address);
@@ -118,7 +97,6 @@ class AddressController extends Controller
             'is_default' => ['boolean'],
         ]);
 
-        // If this is being set as default, remove default from other addresses
         if (($validated['is_default'] ?? false) && !$address->is_default) {
             auth()->user()->addresses()
                 ->where('id', '!=', $address->id)
@@ -131,9 +109,6 @@ class AddressController extends Controller
             ->with('success', 'Address updated successfully.');
     }
 
-    /**
-     * Remove the specified address from storage
-     */
     public function destroy(Address $address): RedirectResponse
     {
         $this->authorize('delete', $address);
@@ -163,9 +138,6 @@ class AddressController extends Controller
             ->with('success', 'Address deleted successfully.');
     }
 
-    /**
-     * Set an address as default
-     */
     public function setDefault(Address $address): RedirectResponse
     {
         $this->authorize('update', $address);
@@ -182,9 +154,6 @@ class AddressController extends Controller
             ->with('success', 'Default address updated successfully.');
     }
 
-    /**
-     * Get addresses by type (for AJAX requests)
-     */
     public function getByType(Request $request)
     {
         $type = $request->get('type', 'both');
@@ -200,9 +169,6 @@ class AddressController extends Controller
         ]);
     }
 
-    /**
-     * Get user's default address
-     */
     public function getDefault()
     {
         $defaultAddress = auth()->user()->addresses()

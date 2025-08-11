@@ -30,12 +30,20 @@ export default function AddToCartButton({ bookId }: AddToCartProps) {
     }
 
     router.post(
-      route('cart.store', { book: bookId }),
-      {},
+      route('cart.add'), // Changed from cart.store
+      {
+        book_id: bookId, // Send as request body
+        quantity: 1      // Default quantity
+      },
       {
         onSuccess: () => {
           showSuccessToast('Book added to cart.');
         },
+        onError: (errors) => {
+          const errorMessage = Object.values(errors)[0] as string;
+          setToastMessage(errorMessage || 'Failed to add to cart.');
+          setShowToast(true);
+        }
       }
     );
   };

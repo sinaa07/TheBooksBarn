@@ -18,6 +18,89 @@ use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
+    public function index():Response
+    {
+
+        $cart = Cart::with(['cartItems.book.category'])
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$cart || $cart->cartItems->isEmpty()) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Your cart is empty.');
+        }
+
+        $unavailableItems = [];
+        $items = $cart->cartItems->map(function ($item) use (&$unavailableItems) {
+            if (!$item->book->is_active || $item->book->stock_quantity < $item->quantity) {
+                $unavailableItems[] = $item->book->title;
+            }
+
+            return [
+                'id' => $item->id,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'total_price' => $item->quantity * $item->unit_price,
+                'book' => [
+                    'id' => $item->book->id,
+                    'title' => $item->book->title,
+                    'author' => $item->book->author,
+                    'cover_image_url' => $item->book->cover_image_url,
+                    'format' => $item->book->format,
+                    'stock_quantity' => $item->book->stock_quantity,
+                    'is_active' => $item->book->is_active,
+                ],
+            ];
+        });
+
+        if (!empty($unavailableItems)) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Some items in your cart are no longer available: ' . implode(', ', $unavailableItems));
+        }
+
+        $subtotal = $items->sum('total_price');
+        $shippingCost = $subtotal >= 500 ? 0 : 50;
+        $total = $subtotal + $shippingCost;
+
+        $addresses = Auth::user()->addresses()
+            ->orderBy('is_default', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($address) {
+                return [
+                    'id' => $address->id,
+                    'name' => $address->name,
+                    'phone' => $address->phone,
+                    'address_line_1' => $address->address_line_1,
+                    'address_line_2' => $address->address_line_2,
+                    'city' => $address->city,
+                    'state' => $address->state,
+                    'postal_code' => $address->postal_code,
+                    'country' => $address->country,
+                    'is_default' => $address->is_default,
+                ];
+            });
+
+        return Inertia::render('Checkout', [
+            'cart' => [
+                'id' => $cart->id,
+            ],
+            'items' => $items,
+            'addresses' => $addresses,
+            'summary' => [
+                'subtotal' => $subtotal,
+                'shipping_cost' => $shippingCost,
+                'total' => $total,
+                'item_count' => $items->sum('quantity'),
+            ],
+            'payment_methods' => [
+                'credit_card' => 'Credit Card',
+                'debit_card' => 'Debit Card',
+                'paypal' => 'PayPal',
+                'cash_on_delivery' => 'Cash on Delivery',
+            ],
+        ]);
+    }
     public function store(Request $request): RedirectResponse
     {
         $request->validate([

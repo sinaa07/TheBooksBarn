@@ -173,8 +173,16 @@ export interface CartItem {
     unit_price: number;
     created_at: string;
     updated_at: string;
-    book?: Book;
+    book: Book;
 }
+
+export interface CartSummary {
+    subtotal: number;
+    shipping_cost: number;
+    total: number;
+    item_count: number;
+}
+
 
 // Updated to match orders migration
 export interface Order {

@@ -47,12 +47,16 @@ Route::get('/contact', function(){
     return Inertia::render('Contact');
 });
 
-// Cart routes (available to both guests and authenticated users)
-Route::prefix('cart')->name('cart.')->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('index');
-    Route::post('/{book}', [CartController::class, 'store'])->name('store');
-    Route::patch('/{book}', [CartController::class, 'update'])->name('update');
-    Route::delete('/{book}', [CartController::class, 'destroy'])->name('destroy');
+// Cart routes (authenticated users)
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::post('/add', [CartController::class, 'add'])->name('add');
+        Route::patch('/update/{itemId}', [CartController::class, 'update'])->name('update');
+        Route::delete('/remove/{itemId}', [CartController::class, 'remove'])->name('remove');
+        Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+        Route::get('/count', [CartController::class, 'count'])->name('count');
+    });
 });
 
 // Authenticated user routes
@@ -79,24 +83,34 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
-
+    
     // User orders
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('index');
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::post('/{order}/cancel', [OrderController::class, 'cancel'])->name('cancel');
+        Route::post('/{order}/reorder', [OrderController::class, 'reorder'])->name('reorder');
+        Route::get('/{order}/success', [OrderController::class, 'success'])->name('success');
+        Route::get('/track/{orderNumber}', [OrderController::class, 'track'])->name('track');
     });
+});
 
-    // Checkout and payment (verified users only)
-    Route::middleware('verified')->group(function () {
-        Route::prefix('checkout')->name('checkout.')->group(function () {
-            Route::get('/', [CheckoutController::class, 'index'])->name('index');
-            Route::post('/', [CheckoutController::class, 'store'])->name('store');
-        });
-
-        Route::prefix('payment')->name('payment.')->group(function () {
-            Route::get('/{order}', [PaymentController::class, 'index'])->name('index');
-            Route::post('/{order}', [PaymentController::class, 'confirm'])->name('confirm');
-        });
+// Checkout and payment (verified users only), add verified later,
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('checkout')->name('checkout.')->group(function () {
+        Route::get('/', [CheckoutController::class, 'index'])->name('index');
+        Route::post('/', [CheckoutController::class, 'store'])->name('store');
+        Route::post('/validate-stock', [CheckoutController::class, 'validateStock'])->name('validate-stock');
+        Route::post('/calculate-shipping', [CheckoutController::class, 'calculateShipping'])->name('calculate-shipping');
+    });
+    
+    Route::prefix('payment')->name('payment.')->group(function () {
+        Route::get('/{order}/{payment}', [PaymentController::class, 'process'])->name('process');
+        Route::post('/{order}', [PaymentController::class, 'confirm'])->name('confirm');
+    });
+    
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/success/{order}', [OrderController::class, 'success'])->name('success');
     });
 });
 
